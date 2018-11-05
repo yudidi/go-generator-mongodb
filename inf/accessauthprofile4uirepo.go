@@ -8,13 +8,19 @@ import (
 
 type AccessAuthProfile4UIRepo interface {
 	//查询一条AccessAuthProfile4UI记录
-	QueryAccessAuthProfile4UIOne(query interface{}) (*SELFENTITY.AccessAuthProfile4UI,error) 	
+	QueryAccessAuthProfile4UIOne(query map[string]interface{}) (*SELFENTITY.AccessAuthProfile4UI,error) 	
+
+	//查询AccessAuthProfile4UI指定字段
+	QueryAccessAuthProfile4UIField(query map[string]interface{},field string) ([]interface{},error)
 
 	//查询所有AccessAuthProfile4UI记录
 	QueryAccessAuthProfile4UIAll(query map[string]interface{}) (*[]*SELFENTITY.AccessAuthProfile4UI,error) 
 
 	//查询AccessAuthProfile4UI分页排序记录
 	QueryAccessAuthProfile4UIPage(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.AccessAuthProfile4UI,error) 
+
+	//查询AccessAuthProfile4UI数量
+	QueryAccessAuthProfile4UICount(query map[string]interface{}) (int64,error) 
 
 	//更新AccessAuthProfile4UI记录
 	UpdateAccessAuthProfile4UI(selector , values map[string]interface{}) error

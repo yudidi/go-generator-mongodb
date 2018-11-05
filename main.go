@@ -25,7 +25,7 @@ const (
 
 func main() {
 	//TODO
-	entity := entity.AccessAuthProfile{}
+	entity := entity.AccessAuthProfile4UI{}
 	repoInfStr := generateRepoInf(entity)
 	repoImplStr := generateRepoImpl(entity)
 	goRepoFileName := generateGoRepoFileName(entity)
@@ -39,13 +39,15 @@ func generateRepoInf(entity interface{}) string {
 	//生成接口
 	pkg := getInfPackage()
 	queryOneInf := generateQueryOneInf(entityName)
+	queryFieldInf := generateQueryFieldInf(entityName)
 	queryAllInf := generateQueryAllInf(entityName)
 	queryPageInf := generateQueryPageInf(entityName)
+	queryCount := generateQueryCountInf(entityName)
 	updateInf := generateUpdateInf(entityName)
 	deleteInf := generateDeleteInf(entityName)
 	insertInf := generateInsertInf(entityName)
 	closeInf := generateCloseInf()
-	repoInf := queryOneInf + queryAllInf + queryPageInf + updateInf + deleteInf + insertInf + closeInf
+	repoInf := queryOneInf+queryFieldInf + queryAllInf + queryPageInf +queryCount + updateInf + deleteInf + insertInf + closeInf
 	return pkg + `
 type ` + entityRepoName + ` interface {` + repoInf + `
 }`
@@ -61,16 +63,19 @@ func generateRepoImpl(entity interface{}) string {
 	pkg := getImplPackage()
 	repoStruct := getRepoStruct(entityRepoInterfaceName, entityRepoName)
 	queryOne := generateQueryOne(entityName, entityRepoName, entityCollectionName)
+	queryField := generateQueryField(entityName, entityRepoName, entityCollectionName)
 	queryAll := generateQueryAll(entityName, entityRepoName, entityCollectionName)
 	queryPage := generateQueryPage(entityName, entityRepoName, entityCollectionName)
+	queryCount := generateQueryCount(entityName, entityRepoName, entityCollectionName)
 	update := generateUpdate(entityName, entityRepoName, entityCollectionName)
 	delete := generateDelete(entityName, entityRepoName, entityCollectionName)
 	insert := generateInsert(entityName, entityRepoName, entityCollectionName)
 	close := generateClose(entityRepoName)
 
-	repoImpl := queryOne + queryAll + queryPage + update + delete + insert + close
+	repoImpl := queryOne +queryField+ queryAll + queryPage +queryCount+ update + delete + insert + close
 	return pkg + repoStruct + repoImpl
 }
+
 
 func generateGoRepoFileName(entity interface{}) string {
 	entityType := reflect.TypeOf(entity)
@@ -130,7 +135,7 @@ type ` + entityRepoName + ` struct {
 func generateQueryOne(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询一条`+entityName+`记录
-func (this *` + entityRepoName + `)Query` + entityName + `One(query interface{}) (*SELFENTITY.` + entityName + `,error) {
+func (this *` + entityRepoName + `)Query` + entityName + `One(query map[string]interface{}) (*SELFENTITY.` + entityName + `,error) {
 	entity := SELFENTITY.` + entityName + `{}
 	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).One(&entity)
 	if err != nil {
@@ -145,9 +150,41 @@ func (this *` + entityRepoName + `)Query` + entityName + `One(query interface{})
 func generateQueryOneInf(entityName string) string {
 	repoStr := `
 	//查询一条`+entityName+`记录
-	Query` + entityName + `One(query interface{}) (*SELFENTITY.` + entityName + `,error) 	
+	Query` + entityName + `One(query map[string]interface{}) (*SELFENTITY.` + entityName + `,error) 	
 `
 	return repoStr
+}
+
+func generateQueryField(entityName, entityRepoName, entityCollectionName string) string {
+	repoStr := `
+//查询`+entityName+`指定字段
+func (this *` + entityRepoName + `)Query` + entityName + `Field(query map[string]interface{},field string) ([]interface{},error) {
+	entityMap := []map[string]interface{}{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).All(&entityMap)
+	if err != nil {
+		return nil, err
+	}
+	fields:=[]interface{}{}
+	for _,entity:=range entityMap{
+		for k,v:=range entity{
+			if k == field{
+				fields =append(fields,v)
+			}
+		}
+	}
+	return fields, nil
+}	
+`
+	return repoStr
+}
+
+func generateQueryFieldInf(entityName string) string {
+	repoStr := `
+	//查询`+entityName+`指定字段
+	Query` + entityName + `Field(query map[string]interface{},field string) ([]interface{},error)
+`
+	return repoStr
+
 }
 func generateQueryAll(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
@@ -193,6 +230,26 @@ func generateQueryPageInf(entityName string) string {
 	repoStr := `
 	//查询`+entityName+`分页排序记录
 	Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.` + entityName + `,error) 
+`
+	return repoStr
+}
+func generateQueryCount(entityName, entityRepoName, entityCollectionName string) string {
+	repoStr := `
+//查询`+entityName+`数量
+func (this *` + entityRepoName + `)Query` + entityName + `Count(query map[string]interface{}) (int64,error) {
+	count,err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Count()
+	if err != nil {
+		return -1,err
+	}
+	return int64(count), nil
+}	
+`
+	return repoStr
+}
+func generateQueryCountInf(entityName string) string {
+	repoStr := `
+	//查询`+entityName+`数量
+	Query` + entityName + `Count(query map[string]interface{}) (int64,error) 
 `
 	return repoStr
 }

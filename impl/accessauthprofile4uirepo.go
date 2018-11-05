@@ -25,13 +25,31 @@ type AccessAuthProfile4UIMongoRepo struct {
 
 
 //查询一条AccessAuthProfile4UI记录
-func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIOne(query interface{}) (*SELFENTITY.AccessAuthProfile4UI,error) {
+func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIOne(query map[string]interface{}) (*SELFENTITY.AccessAuthProfile4UI,error) {
 	entity := SELFENTITY.AccessAuthProfile4UI{}
 	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).One(&entity)
 	if err != nil {
 		return nil, err
 	}
 	return &entity, nil
+}	
+
+//查询AccessAuthProfile4UI指定字段
+func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIField(query map[string]interface{},field string) ([]interface{},error) {
+	entityMap := []map[string]interface{}{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).All(&entityMap)
+	if err != nil {
+		return nil, err
+	}
+	fields:=[]interface{}{}
+	for _,entity:=range entityMap{
+		for k,v:=range entity{
+			if k == field{
+				fields =append(fields,v)
+			}
+		}
+	}
+	return fields, nil
 }	
 
 //查询所有AccessAuthProfile4UI记录
@@ -57,6 +75,15 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIPage(query ma
 
 	return &entities, nil
 
+}	
+
+//查询AccessAuthProfile4UI数量
+func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UICount(query map[string]interface{}) (int64,error) {
+	count,err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).Count()
+	if err != nil {
+		return -1,err
+	}
+	return int64(count), nil
 }	
 
 //更新AccessAuthProfile4UI记录

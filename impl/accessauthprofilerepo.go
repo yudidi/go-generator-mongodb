@@ -25,13 +25,31 @@ type AccessAuthProfileMongoRepo struct {
 
 
 //查询一条AccessAuthProfile记录
-func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileOne(query interface{}) (*SELFENTITY.AccessAuthProfile,error) {
+func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileOne(query map[string]interface{}) (*SELFENTITY.AccessAuthProfile,error) {
 	entity := SELFENTITY.AccessAuthProfile{}
 	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).One(&entity)
 	if err != nil {
 		return nil, err
 	}
 	return &entity, nil
+}	
+
+//查询AccessAuthProfile指定字段
+func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileField(query map[string]interface{},field string) ([]interface{},error) {
+	entityMap := []map[string]interface{}{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).All(&entityMap)
+	if err != nil {
+		return nil, err
+	}
+	fields:=[]interface{}{}
+	for _,entity:=range entityMap{
+		for k,v:=range entity{
+			if k == field{
+				fields =append(fields,v)
+			}
+		}
+	}
+	return fields, nil
 }	
 
 //查询所有AccessAuthProfile记录
@@ -57,6 +75,15 @@ func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfilePage(query map[stri
 
 	return &entities, nil
 
+}	
+
+//查询AccessAuthProfile数量
+func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileCount(query map[string]interface{}) (int64,error) {
+	count,err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).Count()
+	if err != nil {
+		return -1,err
+	}
+	return int64(count), nil
 }	
 
 //更新AccessAuthProfile记录
