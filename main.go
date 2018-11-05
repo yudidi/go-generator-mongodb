@@ -279,14 +279,13 @@ func writeInfo2GoFile(repoStr, goFilePath, goFileName string) {
 	if err != nil {
 		panic(err)
 	}
-	if exist {
-		os.RemoveAll(goFilePath)
 
-	}
-	// 创建文件夹
-	err = os.Mkdir(goFilePath, os.ModePerm)
-	if err != nil {
-		panic(err)
+	if !exist {
+		// 创建文件夹
+		err = os.Mkdir(goFilePath, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
 	}
 	goFile, err := os.OpenFile(goFilePath+goFileName, os.O_RDWR|os.O_CREATE, 0766)
 	if err != nil {
