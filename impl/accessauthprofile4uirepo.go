@@ -36,8 +36,12 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIOne(query map
 
 //查询AccessAuthProfile4UI指定字段
 func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIField(query map[string]interface{},field string) ([]interface{},error) {
+	selector:=map[string]interface{}{
+		"_id":0,
+	}
+	selector[field]=1
 	entityMap := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).All(&entityMap)
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).Select(selector).All(&entityMap)
 	if err != nil {
 		return nil, err
 	}
