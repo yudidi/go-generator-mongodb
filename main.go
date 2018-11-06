@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 /*
- * 生成MONOGO数据库操作接口和实现的go文件
+ * repo层生成器。生成golang语言repo接口和mongo实现。
  * 注意:
- *		项目需要放置在%GOPATH%/src下
+ *	项目需要放置在%GOPATH%/src下
  *      TODO表示需要配置的地方
  *
  */
@@ -39,6 +39,7 @@ func main() {
 	writeInfo2GoFile(repoInfStr, REPO_INF_GO_FILE_PATH, goRepoFileName+".go")
 	writeInfo2GoFile(repoImplStr, REPO_IMPL_GO_FILE_PATH, goRepoFileName+".go")
 }
+//生成repo接口
 func generateRepoInf(entity interface{}) string {
 	entityType := reflect.TypeOf(entity)
 	entityName := getEntityName(entityType)
@@ -59,6 +60,7 @@ func generateRepoInf(entity interface{}) string {
 type ` + entityRepoName + ` interface {` + repoInf + `
 }`
 }
+//生成repo的mongo实现
 func generateRepoImpl(entity interface{}) string {
 	entityType := reflect.TypeOf(entity)
 	entityName := getEntityName(entityType)
