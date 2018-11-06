@@ -1,6 +1,7 @@
 
 package impl
 import (
+	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2"
 	MONGO "han-networks.com/csp/common_grpc/mongo"
 	CONFIG "han-networks.com/csp/config_grpc/config"
@@ -92,7 +93,7 @@ func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileCount(query map[str
 
 //更新AccessAuthProfile记录
 func (this *AccessAuthProfileMongoRepo) UpdateAccessAuthProfile(selector , values map[string]interface{}) error {
-	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).UpdateAll(selector, values)
+	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).UpdateAll(selector, bson.M{"$set": values})
 	if err != nil {
 		return err
 	}

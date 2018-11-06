@@ -32,7 +32,7 @@ const (
 
 func main() {
 	//TODO 需要修改
-	entity := entity.AccessAuthProfile{}
+	entity := entity.AccessAuthProfile4UI{}
 	repoInfStr := generateRepoInf(entity)
 	repoImplStr := generateRepoImpl(entity)
 	goRepoFileName := generateGoRepoFileName(entity)
@@ -102,6 +102,7 @@ func getImplPackage() string {
 	return `
 package impl
 import (
+	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2"
 	MONGO "` + MONGO + `"
 	CONFIG "` + CONFIG + `"
@@ -269,7 +270,7 @@ func generateUpdate(entityName, entityRepoName, entityCollectionName string) str
 	repoStr := `
 //更新` + entityName + `记录
 func (this *` + entityRepoName + `) Update` + entityName + `(selector , values map[string]interface{}) error {
-	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).UpdateAll(selector, values)
+	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).UpdateAll(selector, bson.M{"$set": values})
 	if err != nil {
 		return err
 	}

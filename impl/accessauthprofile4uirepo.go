@@ -1,6 +1,7 @@
 
 package impl
 import (
+	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2"
 	MONGO "han-networks.com/csp/common_grpc/mongo"
 	CONFIG "han-networks.com/csp/config_grpc/config"
@@ -92,7 +93,7 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UICount(query m
 
 //更新AccessAuthProfile4UI记录
 func (this *AccessAuthProfile4UIMongoRepo) UpdateAccessAuthProfile4UI(selector , values map[string]interface{}) error {
-	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).UpdateAll(selector, values)
+	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).UpdateAll(selector, bson.M{"$set": values})
 	if err != nil {
 		return err
 	}
