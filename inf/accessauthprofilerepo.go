@@ -14,10 +14,10 @@ type AccessAuthProfileRepo interface {
 	QueryAccessAuthProfileField(query map[string]interface{},field string) ([]interface{},error)
 
 	//查询所有AccessAuthProfile记录
-	QueryAccessAuthProfileAll(query map[string]interface{}) (*[]*SELFENTITY.AccessAuthProfile,error) 
+	QueryAccessAuthProfileAll(query map[string]interface{}) ([]*SELFENTITY.AccessAuthProfile,error) 
 
 	//查询AccessAuthProfile分页排序记录
-	QueryAccessAuthProfilePage(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.AccessAuthProfile,error) 
+	QueryAccessAuthProfilePage(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.AccessAuthProfile,error) 
 
 	//查询AccessAuthProfile数量
 	QueryAccessAuthProfileCount(query map[string]interface{}) (int64,error) 

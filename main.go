@@ -32,7 +32,7 @@ const (
 
 func main() {
 	//TODO 需要修改
-	entity := entity.AccessAuthProfile4UI{}
+	entity := entity.AccessAuthProfile{}
 	repoInfStr := generateRepoInf(entity)
 	repoImplStr := generateRepoImpl(entity)
 	goRepoFileName := generateGoRepoFileName(entity)
@@ -172,14 +172,14 @@ func (this *` + entityRepoName + `)Query` + entityName + `Field(query map[string
 		"_id":0,
 	}
 	selector[field]=1
-	entityMap := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Select(selector).All(&entityMap)
+	entityMaps := []map[string]interface{}{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Select(selector).All(&entityMaps)
 	if err != nil {
 		return nil, err
 	}
 	fields:=[]interface{}{}
-	for _,entity:=range entityMap{
-		for k,v:=range entity{
+	for _,entityMap:=range entityMaps{
+		for k,v:=range entityMap{
 			if k == field{
 				fields =append(fields,v)
 			}
@@ -202,13 +202,13 @@ func generateQueryFieldInf(entityName string) string {
 func generateQueryAll(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询所有` + entityName + `记录
-func (this *` + entityRepoName + `)Query` + entityName + `All(query map[string]interface{}) (*[]*SELFENTITY.` + entityName + `,error) {
+func (this *` + entityRepoName + `)Query` + entityName + `All(query map[string]interface{}) ([]*SELFENTITY.` + entityName + `,error) {
 	entities := []*SELFENTITY.` + entityName + `{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).All(entities)
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).All(&entities)
 	if err != nil {
 		return nil, err
 	}
-	return &entities, nil
+	return entities, nil
 }	
 `
 	return repoStr
@@ -216,14 +216,14 @@ func (this *` + entityRepoName + `)Query` + entityName + `All(query map[string]i
 func generateQueryAllInf(entityName string) string {
 	repoStr := `
 	//查询所有` + entityName + `记录
-	Query` + entityName + `All(query map[string]interface{}) (*[]*SELFENTITY.` + entityName + `,error) 
+	Query` + entityName + `All(query map[string]interface{}) ([]*SELFENTITY.` + entityName + `,error) 
 `
 	return repoStr
 }
 func generateQueryPage(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询` + entityName + `分页排序记录
-func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.` + entityName + `,error) {
+func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.` + entityName + `,error) {
 	q := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query)
 	if sorts != nil && len(sorts) > 0 {
 		for _, s := range sorts {
@@ -233,7 +233,7 @@ func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]
 	entities := []*SELFENTITY.` + entityName + `{}
 	q.Limit(limit).All(&entities)
 
-	return &entities, nil
+	return entities, nil
 
 }	
 `
@@ -242,7 +242,7 @@ func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]
 func generateQueryPageInf(entityName string) string {
 	repoStr := `
 	//查询` + entityName + `分页排序记录
-	Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.` + entityName + `,error) 
+	Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.` + entityName + `,error) 
 `
 	return repoStr
 }

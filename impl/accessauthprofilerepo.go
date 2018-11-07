@@ -41,14 +41,14 @@ func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileField(query map[str
 		"_id":0,
 	}
 	selector[field]=1
-	entityMap := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).Select(selector).All(&entityMap)
+	entityMaps := []map[string]interface{}{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).Select(selector).All(&entityMaps)
 	if err != nil {
 		return nil, err
 	}
 	fields:=[]interface{}{}
-	for _,entity:=range entityMap{
-		for k,v:=range entity{
+	for _,entityMap:=range entityMaps{
+		for k,v:=range entityMap{
 			if k == field{
 				fields =append(fields,v)
 			}
@@ -58,17 +58,17 @@ func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileField(query map[str
 }	
 
 //查询所有AccessAuthProfile记录
-func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileAll(query map[string]interface{}) (*[]*SELFENTITY.AccessAuthProfile,error) {
+func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileAll(query map[string]interface{}) ([]*SELFENTITY.AccessAuthProfile,error) {
 	entities := []*SELFENTITY.AccessAuthProfile{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).All(entities)
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).All(&entities)
 	if err != nil {
 		return nil, err
 	}
-	return &entities, nil
+	return entities, nil
 }	
 
 //查询AccessAuthProfile分页排序记录
-func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfilePage(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.AccessAuthProfile,error) {
+func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfilePage(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.AccessAuthProfile,error) {
 	q := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query)
 	if sorts != nil && len(sorts) > 0 {
 		for _, s := range sorts {
@@ -78,7 +78,7 @@ func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfilePage(query map[stri
 	entities := []*SELFENTITY.AccessAuthProfile{}
 	q.Limit(limit).All(&entities)
 
-	return &entities, nil
+	return entities, nil
 
 }	
 

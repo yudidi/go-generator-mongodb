@@ -41,14 +41,14 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIField(query m
 		"_id":0,
 	}
 	selector[field]=1
-	entityMap := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).Select(selector).All(&entityMap)
+	entityMaps := []map[string]interface{}{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).Select(selector).All(&entityMaps)
 	if err != nil {
 		return nil, err
 	}
 	fields:=[]interface{}{}
-	for _,entity:=range entityMap{
-		for k,v:=range entity{
+	for _,entityMap:=range entityMaps{
+		for k,v:=range entityMap{
 			if k == field{
 				fields =append(fields,v)
 			}
@@ -58,17 +58,17 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIField(query m
 }	
 
 //查询所有AccessAuthProfile4UI记录
-func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIAll(query map[string]interface{}) (*[]*SELFENTITY.AccessAuthProfile4UI,error) {
+func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIAll(query map[string]interface{}) ([]*SELFENTITY.AccessAuthProfile4UI,error) {
 	entities := []*SELFENTITY.AccessAuthProfile4UI{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).All(entities)
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).All(&entities)
 	if err != nil {
 		return nil, err
 	}
-	return &entities, nil
+	return entities, nil
 }	
 
 //查询AccessAuthProfile4UI分页排序记录
-func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIPage(query map[string]interface{}, limit int, sorts ...string) (*[]*SELFENTITY.AccessAuthProfile4UI,error) {
+func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIPage(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.AccessAuthProfile4UI,error) {
 	q := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query)
 	if sorts != nil && len(sorts) > 0 {
 		for _, s := range sorts {
@@ -78,7 +78,7 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIPage(query ma
 	entities := []*SELFENTITY.AccessAuthProfile4UI{}
 	q.Limit(limit).All(&entities)
 
-	return &entities, nil
+	return entities, nil
 
 }	
 
