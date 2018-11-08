@@ -1,4 +1,3 @@
-
 package inf
 import (
 	SELFENTITY "han-networks.com/csp/config_grpc/entity"
@@ -11,7 +10,7 @@ type AccessAuthProfileRepo interface {
 	QueryAccessAuthProfileOne(query map[string]interface{}) (*SELFENTITY.AccessAuthProfile,error) 	
 
 	//查询AccessAuthProfile指定字段
-	QueryAccessAuthProfileField(query map[string]interface{},field string) ([]interface{},error)
+	QueryAccessAuthProfileDistinct(query map[string]interface{},field string,result interface{}) (error)
 
 	//查询所有AccessAuthProfile记录
 	QueryAccessAuthProfileAll(query map[string]interface{}) ([]*SELFENTITY.AccessAuthProfile,error) 

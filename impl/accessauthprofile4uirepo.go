@@ -1,4 +1,3 @@
-
 package impl
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -6,7 +5,7 @@ import (
 	MONGO "han-networks.com/csp/common_grpc/mongo"
 	CONFIG "han-networks.com/csp/config_grpc/config"
 	SELFENTITY "han-networks.com/csp/config_grpc/entity"
-	REPO "mongorepo/inf"
+	REPO "gorepomaker/inf"
 )
 
 
@@ -36,25 +35,12 @@ func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIOne(query map
 }	
 
 //查询AccessAuthProfile4UI指定字段
-func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIField(query map[string]interface{},field string) ([]interface{},error) {
-	selector:=map[string]interface{}{
-		"_id":0,
-	}
-	selector[field]=1
-	entityMaps := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).Select(selector).All(&entityMaps)
+func (this *AccessAuthProfile4UIMongoRepo)QueryAccessAuthProfile4UIDistinct(query map[string]interface{},field string,result interface{}) (error) {
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfile4UICol).Find(query).Distinct(field,result)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	fields:=[]interface{}{}
-	for _,entityMap:=range entityMaps{
-		for k,v:=range entityMap{
-			if k == field{
-				fields =append(fields,v)
-			}
-		}
-	}
-	return fields, nil
+	return nil
 }	
 
 //查询所有AccessAuthProfile4UI记录

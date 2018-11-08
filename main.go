@@ -5,40 +5,63 @@ import (
 	"os"
 	"reflect"
 	"strings"
-)
-/*
- * repo层生成器。生成golang语言repo接口和mongo实现。
- * 注意:
- *	项目需要放置在%GOPATH%/src下
- *      TODO表示需要配置的地方
- *
- */
-//导包路径
-const (
-	MONGO      = "han-networks.com/csp/common_grpc/mongo"
-	CONFIG     = "han-networks.com/csp/config_grpc/config"
-	SELFENTITY = "han-networks.com/csp/config_grpc/entity"
+	"fmt"
 )
 
-//生成go文件路径
+/*
+ * repo层生成器。根据指定结构体生成golang语言repo接口和mongo实现。
+ * 注意:
+ *	项目需要放置在%GOPATH%/src下
+ *  TODO表示需要配置的地方
+ *
+ */
+//需修改
 const (
+	//TODO
+	MONGO = "han-networks.com/csp/common_grpc/mongo"
+	//TODO
+	CONFIG = "han-networks.com/csp/config_grpc/config"
+	//TODO
+	SELFENTITY = "han-networks.com/csp/config_grpc/entity"
 	//TODO 需要修改当前项目所在路径
-	PROJECT_PATH = "D:\\project\\go\\src\\mongorepo\\"
-	//无需修改
+	PROJECT_PATH = "D:\\project\\go\\src\\gorepomaker\\"
+)
+
+//无需修改
+const (
 	REPO_IMPL_GO_FILE_PATH = PROJECT_PATH + "impl\\"
 	REPO_INF_GO_FILE_PATH  = PROJECT_PATH + "inf\\"
-	REPO_INTERFACE         = "mongorepo/inf"
+	REPO_INTERFACE         = "gorepomaker/inf"
 )
 
 func main() {
-	//TODO 需要修改
-	entity := entity.AccessAuthProfile{}
+	//TODO 需要修改entities数组
+	entities := []interface{}{
+		entity.AccessAuthProfile{},
+		entity.AccessAuthProfile4UI{},
+		entity.SceneWireProfile4UI{},
+		entity.WiredProfile{},
+	}
+	batchGenerate(entities...)
+}
+
+//执行批量生成
+func batchGenerate(entities ...interface{}) {
+	for _, entity := range entities {
+		generate(entity)
+	}
+}
+
+//执行生成
+func generate(entity interface{}) {
 	repoInfStr := generateRepoInf(entity)
 	repoImplStr := generateRepoImpl(entity)
 	goRepoFileName := generateGoRepoFileName(entity)
 	writeInfo2GoFile(repoInfStr, REPO_INF_GO_FILE_PATH, goRepoFileName+".go")
 	writeInfo2GoFile(repoImplStr, REPO_IMPL_GO_FILE_PATH, goRepoFileName+".go")
+	fmt.Println("Generate "+goRepoFileName+ " , mission success !")
 }
+
 //生成repo接口
 func generateRepoInf(entity interface{}) string {
 	entityType := reflect.TypeOf(entity)
@@ -47,7 +70,7 @@ func generateRepoInf(entity interface{}) string {
 	//生成接口
 	pkg := getInfPackage()
 	queryOneInf := generateQueryOneInf(entityName)
-	queryFieldInf := generateQueryFieldInf(entityName)
+	queryDistinctInf := generateQueryDistinctInf(entityName)
 	queryAllInf := generateQueryAllInf(entityName)
 	queryPageInf := generateQueryPageInf(entityName)
 	queryCount := generateQueryCountInf(entityName)
@@ -55,11 +78,12 @@ func generateRepoInf(entity interface{}) string {
 	deleteInf := generateDeleteInf(entityName)
 	insertInf := generateInsertInf(entityName)
 	closeInf := generateCloseInf()
-	repoInf := queryOneInf + queryFieldInf + queryAllInf + queryPageInf + queryCount + updateInf + deleteInf + insertInf + closeInf
+	repoInf := queryOneInf + queryDistinctInf + queryAllInf + queryPageInf + queryCount + updateInf + deleteInf + insertInf + closeInf
 	return pkg + `
 type ` + entityRepoName + ` interface {` + repoInf + `
 }`
 }
+
 //生成repo的mongo实现
 func generateRepoImpl(entity interface{}) string {
 	entityType := reflect.TypeOf(entity)
@@ -72,7 +96,7 @@ func generateRepoImpl(entity interface{}) string {
 	pkg := getImplPackage()
 	repoStruct := getRepoStruct(entityRepoInterfaceName, entityRepoName)
 	queryOne := generateQueryOne(entityName, entityRepoName, entityCollectionName)
-	queryField := generateQueryField(entityName, entityRepoName, entityCollectionName)
+	queryDistinct := generateQueryDistinct(entityName, entityRepoName, entityCollectionName)
 	queryAll := generateQueryAll(entityName, entityRepoName, entityCollectionName)
 	queryPage := generateQueryPage(entityName, entityRepoName, entityCollectionName)
 	queryCount := generateQueryCount(entityName, entityRepoName, entityCollectionName)
@@ -81,7 +105,7 @@ func generateRepoImpl(entity interface{}) string {
 	insert := generateInsert(entityName, entityRepoName, entityCollectionName)
 	close := generateClose(entityRepoName)
 
-	repoImpl := queryOne + queryField + queryAll + queryPage + queryCount + update + delete + insert + close
+	repoImpl := queryOne + queryDistinct + queryAll + queryPage + queryCount + update + delete + insert + close
 	return pkg + repoStruct + repoImpl
 }
 
@@ -99,8 +123,7 @@ func getEntityRepoInterfaceName(entityName string) string {
 	return entityName + "Repo"
 }
 func getImplPackage() string {
-	return `
-package impl
+	return `package impl
 import (
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2"
@@ -114,8 +137,7 @@ import (
 `
 }
 func getInfPackage() string {
-	return `
-package inf
+	return `package inf
 import (
 	SELFENTITY "` + SELFENTITY + `"
 )
@@ -164,37 +186,23 @@ func generateQueryOneInf(entityName string) string {
 	return repoStr
 }
 
-func generateQueryField(entityName, entityRepoName, entityCollectionName string) string {
+func generateQueryDistinct(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询` + entityName + `指定字段
-func (this *` + entityRepoName + `)Query` + entityName + `Field(query map[string]interface{},field string) ([]interface{},error) {
-	selector:=map[string]interface{}{
-		"_id":0,
-	}
-	selector[field]=1
-	entityMaps := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Select(selector).All(&entityMaps)
+func (this *` + entityRepoName + `)Query` + entityName + `Distinct(query map[string]interface{},field string,result interface{}) (error) {
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Distinct(field,result)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	fields:=[]interface{}{}
-	for _,entityMap:=range entityMaps{
-		for k,v:=range entityMap{
-			if k == field{
-				fields =append(fields,v)
-			}
-		}
-	}
-	return fields, nil
+	return nil
 }	
 `
 	return repoStr
 }
-
-func generateQueryFieldInf(entityName string) string {
+func generateQueryDistinctInf(entityName string) string {
 	repoStr := `
 	//查询` + entityName + `指定字段
-	Query` + entityName + `Field(query map[string]interface{},field string) ([]interface{},error)
+	Query` + entityName + `Distinct(query map[string]interface{},field string,result interface{}) (error)
 `
 	return repoStr
 

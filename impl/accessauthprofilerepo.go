@@ -1,4 +1,3 @@
-
 package impl
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -6,7 +5,7 @@ import (
 	MONGO "han-networks.com/csp/common_grpc/mongo"
 	CONFIG "han-networks.com/csp/config_grpc/config"
 	SELFENTITY "han-networks.com/csp/config_grpc/entity"
-	REPO "mongorepo/inf"
+	REPO "gorepomaker/inf"
 )
 
 
@@ -36,25 +35,12 @@ func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileOne(query map[strin
 }	
 
 //查询AccessAuthProfile指定字段
-func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileField(query map[string]interface{},field string) ([]interface{},error) {
-	selector:=map[string]interface{}{
-		"_id":0,
-	}
-	selector[field]=1
-	entityMaps := []map[string]interface{}{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).Select(selector).All(&entityMaps)
+func (this *AccessAuthProfileMongoRepo)QueryAccessAuthProfileDistinct(query map[string]interface{},field string,result interface{}) (error) {
+	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.AccessAuthProfileCol).Find(query).Distinct(field,result)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	fields:=[]interface{}{}
-	for _,entityMap:=range entityMaps{
-		for k,v:=range entityMap{
-			if k == field{
-				fields =append(fields,v)
-			}
-		}
-	}
-	return fields, nil
+	return nil
 }	
 
 //查询所有AccessAuthProfile记录
