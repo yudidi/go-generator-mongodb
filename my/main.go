@@ -22,7 +22,7 @@ const (
 	//TODO
 	CONFIG = "han-networks.com/csp/config_grpc/config"
 	//TODO
-	SELFENTITY = "han-networks.com/csp/config_grpc/entity/bl"
+	SelfEntity = "han-networks.com/csp/config_grpc/entity/bl"
 	//TODO 需要修改当前项目所在路径
 	PROJECT_PATH = "D:\\GOPATH\\src\\github.com\\gorepomaker\\"
 	OutPut_Path = "D:\\GOPATH\\src\\github.com\\gorepomaker\\" +"blacklist\\"
@@ -144,7 +144,7 @@ import (
 	"gopkg.in/mgo.v2"
 	MONGO "` + MONGO + `"
 	CONFIG "` + CONFIG + `"
-	SELFENTITY "` + SELFENTITY + `"
+	SelfEntity "` + SelfEntity + `"
 	REPO "` + REPO_INTERFACE + `"
 )
 
@@ -154,7 +154,7 @@ import (
 func getInfPackage() string {
 	return `package inf
 import (
-	SELFENTITY "` + SELFENTITY + `"
+	SelfEntity "` + SelfEntity + `"
 )
 
 
@@ -181,9 +181,9 @@ type ` + entityRepoName + ` struct {
 func generateQueryOne(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询一条` + entityName + `记录
-func (this *` + entityRepoName + `)Query` + entityName + `One(query map[string]interface{}) (*SELFENTITY.` + entityName + `,error) {
-	entity := SELFENTITY.` + entityName + `{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).One(&entity)
+func (this *` + entityRepoName + `)Query` + entityName + `One(query map[string]interface{}) (*SelfEntity.` + entityName + `,error) {
+	entity := SelfEntity.` + entityName + `{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).Find(query).One(&entity)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (this *` + entityRepoName + `)Query` + entityName + `One(query map[string]i
 func generateQueryOneInf(entityName string) string {
 	repoStr := `
 	//查询一条` + entityName + `记录
-	Query` + entityName + `One(query map[string]interface{}) (*SELFENTITY.` + entityName + `,error) 	
+	Query` + entityName + `One(query map[string]interface{}) (*SelfEntity.` + entityName + `,error) 	
 `
 	return repoStr
 }
@@ -205,7 +205,7 @@ func generateQueryDistinct(entityName, entityRepoName, entityCollectionName stri
 	repoStr := `
 //查询` + entityName + `指定字段
 func (this *` + entityRepoName + `)Query` + entityName + `Distinct(query map[string]interface{},field string,result interface{}) (error) {
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Distinct(field,result)
+	err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).Find(query).Distinct(field,result)
 	if err != nil {
 		return err
 	}
@@ -225,9 +225,9 @@ func generateQueryDistinctInf(entityName string) string {
 func generateQueryAll(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询所有` + entityName + `记录
-func (this *` + entityRepoName + `)Query` + entityName + `All(query map[string]interface{}) ([]*SELFENTITY.` + entityName + `,error) {
-	entities := []*SELFENTITY.` + entityName + `{}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).All(&entities)
+func (this *` + entityRepoName + `)Query` + entityName + `All(query map[string]interface{}) ([]*SelfEntity.` + entityName + `,error) {
+	entities := []*SelfEntity.` + entityName + `{}
+	err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).Find(query).All(&entities)
 	if err != nil {
 		return nil, err
 	}
@@ -239,21 +239,21 @@ func (this *` + entityRepoName + `)Query` + entityName + `All(query map[string]i
 func generateQueryAllInf(entityName string) string {
 	repoStr := `
 	//查询所有` + entityName + `记录
-	Query` + entityName + `All(query map[string]interface{}) ([]*SELFENTITY.` + entityName + `,error) 
+	Query` + entityName + `All(query map[string]interface{}) ([]*SelfEntity.` + entityName + `,error) 
 `
 	return repoStr
 }
 func generateQueryPage(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //查询` + entityName + `分页排序记录
-func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.` + entityName + `,error) {
-	q := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query)
+func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) ([]*SelfEntity.` + entityName + `,error) {
+	q := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).Find(query)
 	if sorts != nil && len(sorts) > 0 {
 		for _, s := range sorts {
 			q.Sort(s)
 		}
 	}
-	entities := []*SELFENTITY.` + entityName + `{}
+	entities := []*SelfEntity.` + entityName + `{}
 	q.Limit(limit).All(&entities)
 
 	return entities, nil
@@ -265,7 +265,7 @@ func (this *` + entityRepoName + `)Query` + entityName + `Page(query map[string]
 func generateQueryPageInf(entityName string) string {
 	repoStr := `
 	//查询` + entityName + `分页排序记录
-	Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) ([]*SELFENTITY.` + entityName + `,error) 
+	Query` + entityName + `Page(query map[string]interface{}, limit int, sorts ...string) ([]*SelfEntity.` + entityName + `,error) 
 `
 	return repoStr
 }
@@ -273,7 +273,7 @@ func generateQueryCount(entityName, entityRepoName, entityCollectionName string)
 	repoStr := `
 //查询` + entityName + `数量
 func (this *` + entityRepoName + `)Query` + entityName + `Count(query map[string]interface{}) (int64,error) {
-	count,err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Find(query).Count()
+	count,err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).Find(query).Count()
 	if err != nil {
 		return -1,err
 	}
@@ -293,7 +293,7 @@ func generateUpdate(entityName, entityRepoName, entityCollectionName string) str
 	repoStr := `
 //更新` + entityName + `记录
 func (this *` + entityRepoName + `) Update` + entityName + `(selector , values map[string]interface{}) error {
-	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).UpdateAll(selector, bson.M{"$set": values})
+	_, err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).UpdateAll(selector, bson.M{"$set": values})
 	if err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func generateDelete(entityName, entityRepoName, entityCollectionName string) str
 	repoStr := `
 //删除` + entityName + `记录
 func (this *` + entityRepoName + `) Delete` + entityName + `(selector map[string]interface{}) error {
-	_, err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).RemoveAll(selector)
+	_, err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).RemoveAll(selector)
 	if err != nil {
 		return err
 	}
@@ -335,12 +335,12 @@ func generateDeleteInf(entityName string) string {
 func generateInsert(entityName, entityRepoName, entityCollectionName string) string {
 	repoStr := `
 //插入` + entityName + `记录
-func (this *` + entityRepoName + `) Insert` + entityName + `(entities ...*SELFENTITY.` + entityName + `) error {
+func (this *` + entityRepoName + `) Insert` + entityName + `(entities ...*SelfEntity.` + entityName + `) error {
 	entitiesInterface:= []interface{}{}
 	for _,entity:=range entities{
 		entitiesInterface=append(entitiesInterface,entity)
 	}
-	err := this.session.DB(CONFIG.MgoDBName).C(SELFENTITY.` + entityCollectionName + `).Insert(entitiesInterface...)
+	err := this.session.DB(CONFIG.MgoDBName).C(SelfEntity.` + entityCollectionName + `).Insert(entitiesInterface...)
 	if err != nil {
 		return err
 	}
@@ -354,7 +354,7 @@ func (this *` + entityRepoName + `) Insert` + entityName + `(entities ...*SELFEN
 func generateInsertInf(entityName string) string {
 	repoStr := `
 	//插入` + entityName + `记录
-	Insert` + entityName + `(entities ...*SELFENTITY.` + entityName + `) error
+	Insert` + entityName + `(entities ...*SelfEntity.` + entityName + `) error
 `
 	return repoStr
 }
